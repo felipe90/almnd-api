@@ -1,0 +1,16 @@
+{
+  "name": "almundo-api",
+  "version": "1.0.0",
+  "description": "REST API for almundo test based on Nodejs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "node",
+    "rest",
+    "api"
+  ],
+  "author": "Felipe Rojas",
+  "license": "ISC"
+}
