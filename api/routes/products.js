@@ -21,6 +21,17 @@ router.get('/:id', (req, res, next) => {
     }
 });
 
+router.post('/', (req, res, next) => {
+    const product = {
+        name : req.body.name,
+        price : req.body.price        
+    }
+    res.status(201).json({
+        message: 'POST /products',
+        product: product
+    });
+});
+
 router.patch('/:id', (req, res, next) => {
     const id = req.params.id;
     res.status(200).json({
@@ -34,12 +45,6 @@ router.delete('/:id', (req, res, next) => {
     res.status(200).json({
         message: `PATH deleted product ID = ${id}`,
         id: id
-    });
-});
-
-router.post('/', (req, res, next) => {
-    res.status(200).json({
-        message: 'POST /products'
     });
 });
 
