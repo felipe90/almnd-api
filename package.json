@@ -14,6 +14,7 @@
   "author": "Felipe Rojas",
   "license": "ISC",
   "dependencies": {
+    "eslint": "^4.19.1",
     "express": "^4.16.3"
   }
 }
