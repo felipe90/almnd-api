@@ -1,9 +1,31 @@
 const express = require('express')
 const morgan = require('morgan');
 const bodyParser = require('body-parser')
-const app = express()
+const mongoose = require('mongoose')
 
 const productRoutes = require('./api/routes/products');
+
+//DB
+// const uriTestDb = `mongodb://${process.env.MONGO_ATLAS_USER}:${process.env.MONGO_ATLAS_PW}@mycluster0-shard-00-00.mongodb.net:27017,mycluster0-shard-00-01.mongodb.net:27017,mycluster0-shard-00-02.mongodb.net:27017/test?ssl=true&replicaSet=Mycluster0-shard-0&authSource=admin`;
+const uriTestDb = `mongodb+srv://${process.env.MONGO_ATLAS_USER}:${process.env.MONGO_ATLAS_PW}@cluster0.mongodb.net/`;
+
+
+mongoose.connect(uriTestDb)
+    .catch(err => {
+        console.log(err)
+    });
+
+mongoose.connection.on('connected', () => {
+    console.log('Connected to mongodb')
+})
+
+// const mongoDbUrl =
+//   `mongodb+srv://${username}:${password}@mydb-sandbox-12345.mongodb.net/testdb`
+// mongoose.connect("mongodb+srv://kay:" + process.env.MONGO_ATLAS_PW + "@cluster0.mongodb.net/test")
+
+
+//APP Config
+const app = express()
 
 app.use(morgan('dev'))
 app.use(bodyParser.urlencoded({ extended: false }))
