@@ -1,11 +1,11 @@
-const moongose = require('mongoose')
+const mongoose = require('mongoose')
 
-const productsSchema = moongose.Schema(
+const productSchema = mongoose.Schema(
     {
-        _id: moongose.Schema.Types.ObjectId,
+        _id: mongoose.Schema.Types.ObjectId,
         name: String,
         price: Number
     }
 )
 
-module.exports = moongose.model('Product', productsSchema)
+module.exports = mongoose.model('Product', productSchema)
