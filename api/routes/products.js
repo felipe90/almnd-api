@@ -1,6 +1,14 @@
 const express = require('express');
 const mongoose = require('mongoose');
-
+const multer = require('multer')
+const storage = multer.diskStorage({
+    destination: function(req, file, cb) {
+        cb(null, './uplodas/')
+    },
+    filename: function(req, file, cb) {
+        cb(null, file.originalname)
+    }
+})
 
 //Models
 const Product = require('../models/product');
@@ -8,13 +16,29 @@ const Product = require('../models/product');
 //Router
 const router = express.Router();
 
+//Misc
+const selectQuery = '_id name stars price image amenities';
+const fileFilter = (req, file, cb) => {
+    if(file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
+        cb(null,true)
+    } else {
+        cb(new Error('Not supported file type'),false)
+    }
+}
+const upload = multer({storage: storage, limits: {fileSize: 1024*1024*5 }, fileFilter: fileFilter})
+
 //GET
 router.get('/', (req, res, next) => {
     Product.find()
+        .select(selectQuery)
         .then(docs => {
             console.log(docs)
             if (docs.length > 0) {
-                res.status(200).json(docs);
+                const response = {
+                    count: docs.length,
+                    products: docs
+                }
+                res.status(200).json(response);
             } else {
                 res.status(404).json({
                     message: "No entries found"
@@ -33,11 +57,17 @@ router.get('/', (req, res, next) => {
 //GET by ID
 router.get('/:id', (req, res, next) => {
     const id = req.params.id;
+    console.log(req.headers.host)
+    
     Product.findById(id)
+        .select(selectQuery)
         .then(doc => {
             console.log(doc)
             if (doc) {
-                res.status(200).json(doc)
+                const response = {
+                    product: doc
+                }
+                res.status(200).json(response)
             } else {
                 res.status(404).json({
                     message: "Not valid entry found for this ID"
@@ -51,17 +81,22 @@ router.get('/:id', (req, res, next) => {
 });
 
 //POST
-router.post('/', (req, res, next) => {
+router.post('/', upload.single('image'),(req, res, next) => {
+    
+    console.log(req.file)
     const product = new Product({
         _id: new mongoose.Types.ObjectId(),
         name: req.body.name,
-        price: req.body.price
+        stars: req.body.stars,
+        price: req.body.price,
+        image: req.file.path,
+        amenities: req.body.amenities
     })
     product.save()
         .then(doc => {
             console.log(doc)
             res.status(201).json({
-                message: "POST /products",
+                message: "POST Created product successfully",
                 createdProduct: doc
             })
         })
