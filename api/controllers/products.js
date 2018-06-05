@@ -15,11 +15,12 @@ const isDummyQuery = (req) => {
 
 const filterDummy = (key, query) => {
     let data = null;
-    data = dummyData.filter((item) => {
+    data = dummyData.filter((item) => {        
         if (key === 'name') return item[key].indexOf(query) > -1
-        if (key === 'price') return item[key] === query
-        if (key === 'stars') return item[key] === query
+        if (key === 'price') return item[key] === parseFloat(query)
+        if (key === 'stars') return item[key] === parseInt(query)
     });
+    console.log(data)
     return data;
 }
 
