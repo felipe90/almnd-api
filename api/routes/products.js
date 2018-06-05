@@ -9,48 +9,71 @@ const Product = require('../models/product');
 const router = express.Router();
 
 //Misc
+const _ = require('lodash')
+const dummyData = require('../../data/data')
 const selectQuery = '_id name stars price image amenities';
 const storage = multer.diskStorage({
-    destination: function(req, file, cb) {
+    destination: function (req, file, cb) {
         cb(null, './uploads/')
     },
-    filename: function(req, file, cb) {
+    filename: function (req, file, cb) {
         cb(null, file.originalname)
     }
 })
 const fileFilter = (req, file, cb) => {
-    if(file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
-        cb(null,true)
+    if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
+        cb(null, true)
     } else {
-        cb(new Error('Not supported file type'),false)
+        cb(new Error('Not supported file type'), false)
     }
 }
-const upload = multer({storage: storage, limits: {fileSize: 1024*1024*5 }, fileFilter: fileFilter})
+const upload = multer({ storage: storage, limits: { fileSize: 1024 * 1024 * 5 }, fileFilter: fileFilter })
+
+//DUMMY
+const getDummy = (req) => {
+    return req.query.dummy
+}
+
+const filterDummy = (key, query) => {
+    let data = null;
+    data = dummyData.filter( (item) => {
+        return item[key].indexOf(query) > -1
+    });
+    return data;
+}
+
+
 
 //GET
 router.get('/', (req, res, next) => {
-    Product.find()
-        .select(selectQuery)
-        .then(docs => {
-            console.log(docs)
-            if (docs.length > 0) {
-                const response = {
-                    count: docs.length,
-                    products: docs
+    if (getDummy(req)) {
+        res.status(200).json(filterDummy("name" , "Casa"));
+        return
+    } else {
+        Product.find()
+            .select(selectQuery)
+            .then(docs => {
+                console.log(docs)
+                if (docs.length > 0) {
+                    const response = {
+                        count: docs.length,
+                        products: docs
+                    }
+                    res.status(200).json(response);
+                } else {
+                    res.status(404).json({
+                        message: "No entries found"
+                    })
                 }
-                res.status(200).json(response);
-            } else {
-                res.status(404).json({
-                    message: "No entries found"
-                })
-            }
-        })
-        .catch(err => {
-            console.log(err)
-            res.status(500).json({
-                error: err
             })
-        })
+            .catch(err => {
+                console.log(err)
+                res.status(500).json({
+                    error: err
+                })
+            })
+
+    }
 
 });
 
@@ -79,7 +102,7 @@ router.get('/:id', (req, res, next) => {
 });
 
 //POST
-router.post('/', upload.single('image'),(req, res, next) => {
+router.post('/', upload.single('image'), (req, res, next) => {
     const product = new Product({
         _id: new mongoose.Types.ObjectId(),
         name: req.body.name,
