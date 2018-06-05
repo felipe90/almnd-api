@@ -9,12 +9,12 @@ const selectQuery = '_id name stars price image amenities';
 
 //dummy
 const isDummyQuery = (req) => {
-    return JSON.parse(req.query.dummy) 
+    return JSON.parse(req.query.dummy)
 }
 
 const filterDummy = (key, query) => {
     let data = null;
-    data = dummyData.filter((item) => {        
+    data = dummyData.filter((item) => {
         if (key === 'name') return item[key].indexOf(query) > -1
         if (key === 'price') return item[key] === parseFloat(query)
         if (key === 'stars') return item[key] === parseInt(query)
@@ -25,16 +25,21 @@ const filterDummy = (key, query) => {
 
 //CONTROLLERS
 exports.products_get_all = (req, res, next) => {
+    console.log(isDummyQuery(req))
     if (isDummyQuery(req)) {
-        if (Object.keys(req.query).includes("name")) res.status(200).json(filterDummy("name", req.query["name"]));
-        if (Object.keys(req.query).includes("price")) res.status(200).json(filterDummy("price", req.query["price"]));
-        if (Object.keys(req.query).includes("stars")) res.status(200).json(filterDummy("stars", req.query["stars"]));
+        let docs = null;
+        if (Object.keys(req.query).includes("name")) docs = filterDummy("name", req.query["name"]);
+        else if (Object.keys(req.query).includes("price")) docs = filterDummy("price", req.query["price"]);
+        else if (Object.keys(req.query).includes("stars")) docs = filterDummy("stars", req.query["stars"]);
+        else docs = dummyData
+        res.status(200).json(docs)
         return
-    } else {
+    }
+    else {
         let _query = null;
-        if (Object.keys(req.query).includes("name")) _query = { name: req.query["name"]}
-        if (Object.keys(req.query).includes("price")) _query = { price: req.query["price"]}
-        if (Object.keys(req.query).includes("stars")) _query = { stars: req.query["stars"]}
+        if (Object.keys(req.query).includes("name")) _query = { name: req.query["name"] }
+        if (Object.keys(req.query).includes("price")) _query = { price: req.query["price"] }
+        if (Object.keys(req.query).includes("stars")) _query = { stars: req.query["stars"] }
         Product
             .find(_query)
             .select(selectQuery)
@@ -60,7 +65,6 @@ exports.products_get_all = (req, res, next) => {
             })
 
     }
-
 }
 
 exports.products_get_by_id = (req, res, next) => {
