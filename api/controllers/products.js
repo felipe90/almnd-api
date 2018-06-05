@@ -12,26 +12,23 @@ const isDummyQuery = (req) => {
     return JSON.parse(req.query.dummy)
 }
 
-const filterDummy = (key, query) => {
-    let data = null;
-    data = dummyData.filter((item) => {
+const filterDummy = (key, query, data) => {
+    let _data = data || [];
+    _data = data.filter((item) => {
         if (key === 'name') return item[key].indexOf(query) > -1
         if (key === 'price') return item[key] === parseFloat(query)
         if (key === 'stars') return item[key] === parseInt(query)
     });
-    console.log(data)
-    return data;
+    return _data;
 }
 
 //CONTROLLERS
 exports.products_get_all = (req, res, next) => {
-    console.log(isDummyQuery(req))
     if (isDummyQuery(req)) {
-        let docs = null;
-        if (Object.keys(req.query).includes("name")) docs = filterDummy("name", req.query["name"]);
-        else if (Object.keys(req.query).includes("price")) docs = filterDummy("price", req.query["price"]);
-        else if (Object.keys(req.query).includes("stars")) docs = filterDummy("stars", req.query["stars"]);
-        else docs = dummyData
+        let docs = dummyData; //default dummy data
+        if (Object.keys(req.query).includes("name")) docs = filterDummy("name", req.query["name"], docs);
+        if (Object.keys(req.query).includes("price")) docs = filterDummy("price", req.query["price"], docs);
+        if (Object.keys(req.query).includes("stars")) docs = filterDummy("stars", req.query["stars"], docs);
         res.status(200).json(docs)
         return
     }
